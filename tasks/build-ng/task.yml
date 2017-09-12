@@ -11,6 +11,9 @@ inputs:
 - name: library-ng
 - name: library-ci
 
+caches:
+- path: library-ng/node_modules
+
 outputs:
 - name: build-output
 
