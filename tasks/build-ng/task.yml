@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: alexsuch/angular-cli
+    tag: '1.4.1-chromium'
+
+inputs:
+- name: library-ng
+- name: library-ci
+
+outputs:
+- name: build-output
+
+run:
+  path: library-ci/tasks/build-ng/task.sh

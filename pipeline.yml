@@ -1,0 +1,17 @@
+---
+jobs:
+- name: build-library-ng
+  plan:
+  - get: library-ng
+    trigger: true
+  - task: build
+    file: library-ci/tasks/build-ng/task.yml
+
+resources:
+- name: library-ng
+  type: git
+  source:
+    uri: ((git-uri-library-ng))
+    branch: ((git-branch-library-ng))
+    private_key: ((git-private-key))
+
