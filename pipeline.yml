@@ -35,5 +35,5 @@ resources:
   type: git
   source:
     uri: ((git-uri-library-backend))
-    branchL ((git-branch-library-backend))
+    branch: ((git-branch-library-backend))
     private_key: ((git-private-key))
