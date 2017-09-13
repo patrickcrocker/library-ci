@@ -8,6 +8,14 @@ jobs:
   - task: build
     file: library-ci/tasks/build-ng/task.yml
 
+- name: build-library-backend
+  plan:
+  - get: library-backend
+    trigger: true
+  - get: library-ci
+  - task: build
+    file: library-ci/tasks/build-library-backend/task.yml
+
 resources:
 - name: library-ng
   type: git
@@ -23,3 +31,9 @@ resources:
     branch: ((git-branch-library-ci))
     private_key: ((git-private-key))
 
+- name: library-backend
+  type: git
+  source:
+    uri: ((git-uri-library-backend))
+    branchL ((git-branch-library-backend))
+    private_key: ((git-private-key))
