@@ -15,11 +15,17 @@ jobs:
     - get: library-backend
       trigger: true
     - get: library-ci
+    - get: library-backend-version
+      params: {pre: rc}
   - task: build
     file: library-ci/tasks/build-library-backend/task.yml
   - put: maven-milestone
     params:
       file: build-output/library-backend-*.jar
+      version_file: library-backend-version/version
+  - put: library-backend-version
+    params:
+      file: library-backend-version/version
 
 resources:
 - name: library-ng
@@ -41,6 +47,16 @@ resources:
   source:
     uri: ((git-uri-library-ci))
     branch: ((git-branch-library-ci))
+    private_key: ((git-private-key))
+
+- name: library-backend-version
+  type: semver
+  source:
+    driver: git
+    uri: ((git-uri-library-backend))
+    branch: version
+    file: version
+    initial_version: 1.0.0-rc.0
     private_key: ((git-private-key))
 
 - name: maven-milestone
