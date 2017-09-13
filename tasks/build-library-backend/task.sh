@@ -4,5 +4,8 @@ set -ex
 
 cd library-backend
 
-./gradlew test
+./gradlew build
 
+cd ..
+
+cp library-backend/build/libs/library-backend-*.jar build-output/.

@@ -2,19 +2,24 @@
 jobs:
 - name: build-library-ng
   plan:
-  - get: library-ng
-    trigger: true
-  - get: library-ci
+  - aggregate:
+    - get: library-ng
+      trigger: true
+    - get: library-ci
   - task: build
     file: library-ci/tasks/build-ng/task.yml
 
 - name: build-library-backend
   plan:
-  - get: library-backend
-    trigger: true
-  - get: library-ci
+  - aggregate:
+    - get: library-backend
+      trigger: true
+    - get: library-ci
   - task: build
     file: library-ci/tasks/build-library-backend/task.yml
+  - put: maven-milestone
+    params:
+      file: build-output/library-backend-*.jar
 
 resources:
 - name: library-ng
@@ -24,6 +29,13 @@ resources:
     branch: ((git-branch-library-ng))
     private_key: ((git-private-key))
 
+- name: library-backend
+  type: git
+  source:
+    uri: ((git-uri-library-backend))
+    branch: ((git-branch-library-backend))
+    private_key: ((git-private-key))
+
 - name: library-ci
   type: git
   source:
@@ -31,9 +43,18 @@ resources:
     branch: ((git-branch-library-ci))
     private_key: ((git-private-key))
 
-- name: library-backend
-  type: git
+- name: maven-milestone
+  type: maven-resource
   source:
-    uri: ((git-uri-library-backend))
-    branch: ((git-branch-library-backend))
-    private_key: ((git-private-key))
+    url: ((maven-milestone-url))
+    artifact: io.pivotal:library-backend:jar
+    username: ((maven-milestone-username))
+    password: ((maven-milestone-password))
+    skip_cert_check: ((maven-milestone-skip-ssl))
+
+resource_types:
+- name: maven-resource
+  type: docker-image
+  source:
+    repository: pivotalpa/maven-resource
+    tag: latest
