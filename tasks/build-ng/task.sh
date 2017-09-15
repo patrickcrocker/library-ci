@@ -2,6 +2,8 @@
 
 set -e
 
+version=$(cat library-ng-version/version)
+
 cd library-ng
 
 prepare_headless_chrome_tests.sh
@@ -16,4 +18,4 @@ ng build $args
 
 cd ..
 
-cp -R library-ng/dist build-output/.
+tar -C library-ng/dist -czvf build-output/library-ng-$version.tar.gz .

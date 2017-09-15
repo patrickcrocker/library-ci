@@ -12,6 +12,7 @@ params:
 
 inputs:
 - name: library-ng
+- name: library-ng-version
 - name: library-ci
 
 caches:
