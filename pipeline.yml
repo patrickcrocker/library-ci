@@ -27,6 +27,48 @@ jobs:
     params:
       file: library-backend-version/version
 
+- name: deploy-library-backend-test
+  plan:
+  - aggregate:
+    - get: library-backend
+    - get: maven-milestone
+      trigger: true
+      passed: [build-library-backend]
+  - put: cf-test-library-backend
+    params:
+      commands:
+      - command: create-org
+      - command: create-space
+      - command: push
+        manifest: library-backend/manifest.yml
+        app_name: ((cf-test-appname))
+        hostname: ((cf-test-hostname))
+        instances: 1
+        path: maven-milestone/library-backend-*.jar
+
+- name: deploy-library-ng-test
+  plan:
+  - aggregate:
+    - get: library-ng
+      passed: [build-library-ng]
+      trigger: true
+    - get: library-ci
+  - task: build
+    file: library-ci/tasks/build-ng/task.yml
+    # - get: maven-milestone
+    #   trigger: true
+    #   passed: [build-library-ng]
+  - put: cf-test-library-ng
+    params:
+      commands:
+      - command: create-org
+      - command: create-space
+      - command: push
+        app_name: ((cf-test-ng-appname))
+        hostname: ((cf-test-ng-hostname))
+        instances: 1
+        path: build-output/dist
+
 resources:
 - name: library-ng
   type: git
@@ -68,9 +110,55 @@ resources:
     password: ((maven-milestone-password))
     skip_cert_check: ((maven-milestone-skip-ssl))
 
+- name: cf-test-library-ng
+  type: cf-cli-resource
+  source:
+    api: ((cf-test-api))
+    username: ((cf-test-username))
+    password: ((cf-test-password))
+    skip_cert_check: false
+    org: ((cf-test-org))
+    space: ((cf-test-space))
+
+- name: cf-test-library-backend
+  type: cf-cli-resource
+  source:
+    api: ((cf-test-api))
+    username: ((cf-test-username))
+    password: ((cf-test-password))
+    skip_cert_check: false
+    org: ((cf-test-org))
+    space: ((cf-test-space))
+
+# - name: cf-uat-library-backend
+#   type: cf-cli-resource
+#   source:
+#     api: https://run.pivotal.io
+#     username: ((cf-uat-username))
+#     password: ((cf-uat-password))
+#     skip_cert_check: false
+#     org: ((cf-uat-org))
+#     space: ((cf-uat-space))
+
+# - name: cf-prod-library-backend
+#   type: cf-cli-resource
+#   source:
+#     api: https://run.pivotal.io
+#     username: ((cf-prod-username))
+#     password: ((cf-prod-password))
+#     skip_cert_check: false
+#     org: ((cf-prod-org))
+#     space: ((cf-prod-space))
+
 resource_types:
 - name: maven-resource
   type: docker-image
   source:
     repository: pivotalpa/maven-resource
+    tag: latest
+
+- name: cf-cli-resource
+  type: docker-image
+  source:
+    repository: pivotalpa/cf-cli-resource
     tag: latest
