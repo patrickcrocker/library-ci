@@ -7,6 +7,9 @@ image_resource:
     repository: alexsuch/angular-cli
     tag: '1.4.1-chromium'
 
+params:
+  NG_ENV:
+
 inputs:
 - name: library-ng
 - name: library-ci

@@ -8,7 +8,11 @@ prepare_headless_chrome_tests.sh
 
 npm install
 ng test --watch false
-ng build
+
+args=
+[ -n "$NG_ENV" ] && args="$args --env=$NG_ENV"
+
+ng build $args
 
 cd ..
 
