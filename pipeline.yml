@@ -1,15 +1,65 @@
 ---
 jobs:
 - name: build-library-ng
+  public: true
   plan:
   - aggregate:
     - get: library-ng
       trigger: true
     - get: library-ci
-  - task: build
+    - get: library-ng-version
+      params: {pre: rc}
+  - task: ng-build
     file: library-ci/tasks/build-ng/task.yml
+    output_mapping: {build-output: ng-build-output}
+    params:
+      NG_ENV: prod
+  - task: pack
+    file: library-ci/tasks/tar/task.yml
+    input_mapping: {build-input: ng-build-output}
+    output_mapping: {build-output: pack-output}
+    params:
+      TAR_MODE: compress
+      TAR_FILE: library-ng-*.tar.gz
+  - put: maven-milestone-ng
+    params:
+      file: pack-output/library-ng-*.tar.gz
+      version_file: library-ng-version/version
+  - put: library-ng-version
+    params:
+      file: library-ng-version/version
+
+- name: deploy-library-ng-test
+  public: true
+  plan:
+  - aggregate:
+    - get: library-ng
+      passed: [build-library-ng]
+    - get: maven-milestone-ng
+      passed: [build-library-ng]
+      trigger: true
+    - get: library-ci
+  - task: unpack
+    file: library-ci/tasks/tar/task.yml
+    input_mapping: {build-input: maven-milestone-ng}
+    output_mapping: {build-output: dist}
+    params:
+      TAR_MODE: decompress
+      TAR_FILE: library-ng-*.tar.gz
+  - put: cf-test-library-ng
+    params:
+      commands:
+      - command: create-org
+      - command: create-space
+      - command: push
+        manifest: library-ng/manifest.yml
+        app_name: ((cf-test-ng-appname))
+        hostname: ((cf-test-ng-hostname))
+        instances: 1
+        path: dist
 
 - name: build-library-backend
+  public: true
   plan:
   - aggregate:
     - get: library-backend
@@ -28,12 +78,14 @@ jobs:
       file: library-backend-version/version
 
 - name: deploy-library-backend-test
+  public: true
   plan:
   - aggregate:
     - get: library-backend
-    - get: maven-milestone
-      trigger: true
       passed: [build-library-backend]
+    - get: maven-milestone
+      passed: [build-library-backend]
+      trigger: true
   - put: cf-test-library-backend
     params:
       commands:
@@ -46,35 +98,22 @@ jobs:
         instances: 1
         path: maven-milestone/library-backend-*.jar
 
-- name: deploy-library-ng-test
-  plan:
-  - aggregate:
-    - get: library-ng
-      passed: [build-library-ng]
-      trigger: true
-    - get: library-ci
-  - task: build
-    file: library-ci/tasks/build-ng/task.yml
-    # - get: maven-milestone
-    #   trigger: true
-    #   passed: [build-library-ng]
-  - put: cf-test-library-ng
-    params:
-      commands:
-      - command: create-org
-      - command: create-space
-      - command: push
-        app_name: ((cf-test-ng-appname))
-        hostname: ((cf-test-ng-hostname))
-        instances: 1
-        path: build-output/dist
-
 resources:
 - name: library-ng
   type: git
   source:
     uri: ((git-uri-library-ng))
     branch: ((git-branch-library-ng))
+    private_key: ((git-private-key))
+
+- name: library-ng-version
+  type: semver
+  source:
+    driver: git
+    uri: ((git-uri-library-ng))
+    branch: version
+    file: version
+    initial_version: 1.0.0-rc.0
     private_key: ((git-private-key))
 
 - name: library-backend
@@ -106,6 +145,15 @@ resources:
   source:
     url: ((maven-milestone-url))
     artifact: io.pivotal:library-backend:jar
+    username: ((maven-milestone-username))
+    password: ((maven-milestone-password))
+    skip_cert_check: ((maven-milestone-skip-ssl))
+
+- name: maven-milestone-ng
+  type: maven-resource
+  source:
+    url: ((maven-milestone-url))
+    artifact: io.pivotal:library-ng:tar.gz
     username: ((maven-milestone-username))
     password: ((maven-milestone-password))
     skip_cert_check: ((maven-milestone-skip-ssl))
