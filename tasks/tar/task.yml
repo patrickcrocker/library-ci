@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: busybox
+    tag: 'latest'
+
+params:
+  TAR_MODE: compress
+  TAR_FILE: library-ng-2.0.0-rc.0.tar.gz
+  TAR_COMPRESSION: # gzip, xz, bzip2, lzma, none, auto or leave empty for auto-detect by file extension
+
+inputs:
+- name: build-input
+- name: library-ci
+
+outputs:
+- name: build-output
+
+run:
+  path: library-ci/tasks/tar/task.sh
