@@ -18,4 +18,4 @@ ng build $args
 
 cd ..
 
-tar -C library-ng/dist -czvf build-output/library-ng-$version.tar.gz .
+cp -R library-ng/dist/* build-output/.
