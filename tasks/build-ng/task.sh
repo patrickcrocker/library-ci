@@ -6,15 +6,17 @@ version=$(cat library-ng-version/version)
 
 cd library-ng
 
-prepare_headless_chrome_tests.sh
-
 npm install
-ng test --watch false
 
-args=
-[ -n "$NG_ENV" ] && args="$args --env=$NG_ENV"
 
-ng build $args
+testargs=
+[ -n "$NG_BROWSERS" ] && testargs="$testargs --browsers='$NG_BROWSERS'"
+ng test --watch false $testargs
+
+buildargs=
+[ -n "$NG_ENV" ] && buildargs="$buildargs --env='$NG_ENV'"
+
+ng build $buildargs
 
 cd ..
 
