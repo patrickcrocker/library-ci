@@ -10,11 +10,11 @@ npm install
 
 
 testargs=
-[ -n "$NG_BROWSERS" ] && testargs="$testargs --browsers='$NG_BROWSERS'"
+[ -n "$NG_BROWSERS" ] && testargs="$testargs --browsers=\"$NG_BROWSERS\""
 ng test --watch false $testargs
 
 buildargs=
-[ -n "$NG_ENV" ] && buildargs="$buildargs --env='$NG_ENV'"
+[ -n "$NG_ENV" ] && buildargs="$buildargs --env=\"$NG_ENV\""
 
 ng build $buildargs
 
