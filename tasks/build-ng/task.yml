@@ -4,8 +4,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: alexsuch/angular-cli
-    tag: '1.4.1-chromium'
+    repository: pivotalpa/angular-cli
+    tag: '1.4.2-rc.3'
 
 params:
   # ng test
