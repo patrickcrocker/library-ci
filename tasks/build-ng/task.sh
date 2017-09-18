@@ -60,4 +60,6 @@ cd ..
 
 cp -R library-ng/${NG_BUILD_OUTPUT_PATH:-dist} build-output/.
 
-[ -d library-ng/coverage ] && cp -R library-ng/coverage build-output/.
+if [ -d library-ng/coverage ]; then
+  cp -R library-ng/coverage build-output/.
+fi
