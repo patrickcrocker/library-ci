@@ -1,6 +1,7 @@
 #!/bin/sh
 
-set -ex
+set -eu
+set -o pipefail
 
 version=$(cat library-ng-version/version)
 
