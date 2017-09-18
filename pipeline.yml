@@ -13,7 +13,9 @@ jobs:
     file: library-ci/tasks/build-ng/task.yml
     output_mapping: {build-output: ng-build-output}
     params:
-      NG_ENV: prod
+      NG_TEST_BROWSERS: HeadlessChrome
+      NG_TEST_CODE_COVERAGE: true
+      NG_BUILD_ENVIRONMENT: prod
   - task: pack
     file: library-ci/tasks/tar/task.yml
     input_mapping: {build-input: ng-build-output}
