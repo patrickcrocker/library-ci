@@ -58,4 +58,6 @@ ng build $buildargs
 
 cd ..
 
-cp -R library-ng/dist/* build-output/.
+cp -R library-ng/${NG_BUILD_OUTPUT_PATH:-dist} build-output/.
+
+[ -d library-ng/coverage ] && cp -R library-ng/coverage build-output/.
