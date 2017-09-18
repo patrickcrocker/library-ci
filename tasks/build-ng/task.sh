@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -ex
 
 version=$(cat library-ng-version/version)
 
